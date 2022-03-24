@@ -11,6 +11,9 @@ def top_page():
 @app.route('/post_photo', methods=['POST'])
 def post_photo():
     # https://qiita.com/ekzemplaro/items/77c0e764b277b0c84b0f
+    dir_name = request.form.get('dir_name')
+    print(dir_name)
+    
     photos = request.files.getlist('photos')
     print(len(photos))
     print(photos)
