@@ -24,21 +24,34 @@ def top_page():
 
 @app.route('/post_photo', methods=['POST'])
 def post_photo():
-    
+    # サービスアカウントを使ってログイン
     obj_drive = get_authenticated_service_with_service_account()
     obj_files = obj_drive.files()
-    print('files-------')
-    print(obj_files)
-    
-    folder_id = os.environ.get('FOLDER_ID','')
+    #print('files-------')
+    #print(obj_files)
     
     # https://qiita.com/ekzemplaro/items/77c0e764b277b0c84b0f
-    dir_name = request.form.get('dir_name')
-    print(dir_name)
+    sub_folder_name = request.form.get('dir_name')
+    print(sub_folder_name)
+    # サブフォルダを作成する
+    top_folder_id = os.environ.get('FOLDER_ID','')
+    sub_folder_meta = {
+        'name': sub_folder_name,
+        'mimeType': 'application/vnd.google-apps.folder',
+        'parents': [top_folder_id]
+    }
+    sub_folder = obj_files.create(
+        body=sub_folder_meta,
+        fields='id'
+    ).execute()
+    sub_folder_id = sub_folder.get('id')
+    print(f'sub:{sub_folder_id}')
     
+    # ファイルを一度ローカルに保存して、アップロードする
     photos = request.files.getlist('photos')
-    print(len(photos))
-    print(photos)
+    
+    #print(len(photos))
+    #print(photos)
     for p in photos:
         #print(p.filename)
         file_path = f'{TMP_DIR}/{p.filename}'
@@ -46,7 +59,7 @@ def post_photo():
         
         file_metadata = {
             'name': p.filename,
-            'parents': [folder_id]
+            'parents': [sub_folder_id]
         }
         media = MediaFileUpload(
             file_path,
