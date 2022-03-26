@@ -1,9 +1,11 @@
 from flask import Flask, render_template, redirect, url_for, request
+import glob
 import os
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 import mimetypes
+import datetime
 
 
 API_SERVICE_NAME = "drive"
@@ -17,7 +19,31 @@ app = Flask(__name__)
 
 @app.route('/')
 def top_page():
+    # ローカルのworkにある古いファイルをたまに消す
+    rm_old_files()
+    
     return render_template('default.html')
+
+
+def rm_old_files():
+    # 今の時刻
+    now = datetime.datetime.now().timestamp()
+    # 削除対象の時間（秒）
+    del_time = 60*60    # 1時間
+    
+    # 削除対象を見つける
+    del_list = []
+    for f in glob.glob(f'{TMP_DIR}/*'):
+        # 最終更新時刻
+        mtime = os.stat(f).st_mtime
+        
+        # 一定時間以上たっている場合は削除
+        if (now-mtime)>del_time:
+            del_list.append(f)
+    
+    # 削除
+    for f in del_list:
+        os.remove(f)
 
 
 @app.route('/post_photo', methods=['POST'])
