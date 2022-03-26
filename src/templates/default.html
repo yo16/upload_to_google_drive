@@ -3,13 +3,46 @@
 <html>
     <head>
         <title>HIU 2022 春</title>
+        <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function(event){
+        });
+        </script>
    </head>
     <body>
-        <form action="post_photo" method="POST" enctype="multipart/form-data">
-            投稿者: <input type="text" name="dir_name" /><br /><br />
-            画像選択：<input type="file" name="photos" multiple="multiple" /><br />
+        <form action="post_photo" method="POST" enctype="multipart/form-data" name="form1">
+            投稿者: <input type="text" name="dir_name" /><span id="spn_error_empty" style="display:none">←必須入力です</span>
+            <br /><br />
+            画像選択：<input type="file" name="photos" multiple="multiple" /><span id="spn_error_nophoto" style="display:none">←写真が選ばれていません</span>
             <br />
-            <input type="submit" value="アップロード実行" />
+            <br />
+            <input type="button" id="do_upload" name="do_upload" value="アップロード実行" onclick="
+            
+                let v = document.form1.dir_name.value;
+                let e1 = document.getElementById('spn_error_empty');
+                if( v.length==0 ){
+                    e1.setAttribute('style', 'background-color:#f00; color:#fff;');
+                    return;
+                }else{
+                    e1.setAttribute('style', 'display:none;');
+                }
+                console.log('v is ok');
+
+                let p = document.form1.photos.value;
+                console.log(p);
+                console.log(p.length);
+                let e2 = document.getElementById('spn_error_nophoto');
+                if( p.length==0 ){
+                    e2.setAttribute('style', 'background-color:#f00; color:#fff;');
+                    return;
+                }else{
+                    e2.setAttribute('style', 'display:none;');
+                }
+                console.log('p is ok');
+
+                console.log('submit-!');
+                document.form1.submit();
+                
+            " />
         </form>
     </body>
 </html>
