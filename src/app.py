@@ -30,20 +30,37 @@ def post_photo():
     
     # https://qiita.com/ekzemplaro/items/77c0e764b277b0c84b0f
     sub_folder_name = request.form.get('dir_name')
-    print(sub_folder_name)
-    # サブフォルダを作成する
+    #print(sub_folder_name)
+    
+    # サブフォルダ名の存在を確認
     top_folder_id = os.environ.get('FOLDER_ID','')
-    sub_folder_meta = {
-        'name': sub_folder_name,
-        'mimeType': 'application/vnd.google-apps.folder',
-        'parents': [top_folder_id]
-    }
-    sub_folder = obj_files.create(
-        body=sub_folder_meta,
-        fields='id'
+    sub_folder_id = ''
+    q_str = "mimeType = 'application/vnd.google-apps.folder' and " + \
+        f"name = '{sub_folder_name}' and " + \
+        f"parents in '{top_folder_id}'"
+    sub_folder_confirm = obj_files.list(
+        q=q_str,
+        pageSize=10,
+        fields='files(id)'
     ).execute()
-    sub_folder_id = sub_folder.get('id')
-    print(f'sub:{sub_folder_id}')
+    items = sub_folder_confirm.get('files',[])
+    if len(items)==0:
+        # ない
+        # サブフォルダを作成する
+        sub_folder_meta = {
+            'name': sub_folder_name,
+            'mimeType': 'application/vnd.google-apps.folder',
+            'parents': [top_folder_id]
+        }
+        sub_folder = obj_files.create(
+            body=sub_folder_meta,
+            fields='id'
+        ).execute()
+        sub_folder_id = sub_folder.get('id')
+    else:
+        # ある
+        sub_folder_id = items[0].get('id')
+    #print(f'sub:{sub_folder_id}')
     
     # ファイルを一度ローカルに保存して、アップロードする
     photos = request.files.getlist('photos')
@@ -71,9 +88,7 @@ def post_photo():
             fields='id'
         ).execute()
         
-        print('File ID: %s' % file.get('id'))
-    
-    # 
+        #print('File ID: %s' % file.get('id'))
     
     return redirect(url_for('top_page'))
 
