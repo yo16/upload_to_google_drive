@@ -49,6 +49,7 @@ def post_photo():
     
     #print(len(photos))
     #print(photos)
+    os.makedirs(TMP_DIR, exist_ok=True)
     for p in photos:
         #print(p.filename)
         file_path = f'{TMP_DIR}/{p.filename}'
