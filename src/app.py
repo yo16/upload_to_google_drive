@@ -3,6 +3,7 @@ import os
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+import mimetypes
 
 
 API_SERVICE_NAME = "drive"
@@ -61,7 +62,7 @@ def post_photo():
         }
         media = MediaFileUpload(
             file_path,
-            mimetype='image/jpeg',
+            mimetype=mimetypes.guess_type(file_path)[0],
             resumable=True
         )
         file = obj_files.create(
